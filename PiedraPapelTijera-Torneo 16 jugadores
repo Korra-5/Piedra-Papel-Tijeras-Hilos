@@ -1,0 +1,103 @@
+using System;
+using System.Collections.Generic;
+using System.Threading;
+
+class TorneoPiedraPapelTijera
+{
+    static string[] opciones = { "Piedra", "Papel", "Tijera" };
+    static Random random = new Random(); 
+    static List<int> jugadores = new List<int>();
+    static void Main(string[] args)
+    {
+        
+
+        //Añadimos jugadores (Respresentados como numeros) a la lista de jugadores
+        for (int i = 1; i <= 16; i++)
+        {
+            jugadores.Add(i);
+        }
+        
+        //Mientras que los jugadores no sean 1 se sigue jugando
+        while (jugadores.Count != 1)
+        {
+            Console.WriteLine($"\nNueva ronda, con {jugadores.Count} jugadores");
+            jugadores = JugarRonda(jugadores);
+        }
+
+        Console.WriteLine($"\nEl ganador es el jugador {jugadores[0]}");
+
+
+        static List<int> JugarRonda(List<int> jugadores)
+        {
+            //El numero de partidas es la mitad de los jugadores ya que juegan de 2 en 2
+            int numPartidas = jugadores.Count / 2;
+            
+            List<Thread> hilos = new List<Thread>();
+            List<int> ganadores = new List<int>();
+
+            for (int i = 0; i < numPartidas; i++)
+            {
+                /*
+                 Seleccionamos el indice 2*i ya que este siempre va a seleccionar el indice que corresponde:
+                 
+                 i=0
+                 jugadores[2*i]=2*0=[0]=Jugador1
+                
+                 i=1
+                 jugadores[2*i]=2*0=[1]=Jugador2
+                */
+                
+                int jugador1 = jugadores[2 * i];
+                int jugador2 = jugadores[2 * i + 1];
+
+                
+                //Metemos a la tabla de hilos los diferentes hilos y les decimos que ejecuten la funcion JugarPartida
+                hilos.Add(new Thread(() =>
+                {
+                    int ganador = JugarPartida(jugador1, jugador2);
+                    ganadores.Add(ganador);
+                    
+                }));
+
+                //Inicializamos los hilos
+                hilos[i].Start();
+            }
+
+            //Esperamos a que acaben todos los hilos
+            foreach (var hilo in hilos)
+            {
+                hilo.Join();
+            }
+
+            return ganadores;
+        }
+
+        static int JugarPartida(int jugador1, int jugador2)
+        {
+            string eleccion1 = opciones[random.Next(opciones.Length)];
+            string eleccion2 = opciones[random.Next(opciones.Length)];
+
+            Console.WriteLine($"Jugador {jugador1} ({eleccion1}) vs Jugador {jugador2} ({eleccion2})");
+
+            if (eleccion1 == eleccion2)
+            {
+                Console.WriteLine($"Empate entre Jugador {jugador1} y Jugador {jugador2}, tiran de nuevo:");
+                return JugarPartida(jugador1, jugador2); 
+            }
+            else if ((eleccion1 == "Piedra" && eleccion2 == "Tijera") ||
+                     (eleccion1 == "Papel" && eleccion2 == "Piedra") ||
+                     (eleccion1 == "Tijera" && eleccion2 == "Papel"))
+            {
+                Console.WriteLine($"Jugador {jugador1} gana contra Jugador {jugador2}!");
+                return jugador1;
+            }
+            else
+            {
+                Console.WriteLine($"Jugador {jugador2} gana contra Jugador {jugador1}!");
+                return jugador2;
+            }
+        }
+    }
+}
+
+    
