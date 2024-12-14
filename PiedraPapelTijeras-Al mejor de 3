@@ -1,0 +1,77 @@
+using System;
+using System.Collections.Generic;
+using System.Threading;
+
+class TorneoPiedraPapelTijera
+{
+            static string jugador1Eleccion;
+            static string jugador2Eleccion;
+            static string[] opciones = { "Piedra", "Papel", "Tijera" };
+            static Random random = new Random();
+            static int jugador1Puntos = 0;
+            static int jugador2Puntos = 0;
+
+            static void Main(string[] args)
+            {
+                while (jugador1Puntos < 2 && jugador2Puntos < 2)
+                {
+                    Thread jugador1 = new Thread(JugarJugador1);
+                    Thread jugador2 = new Thread(JugarJugador2);
+
+                    jugador1.Start();
+                    jugador2.Start();
+
+                    jugador1.Join();
+                    jugador2.Join();
+
+                    DeterminarGanador();
+                }
+
+                if (jugador1Puntos == 2)
+                {
+                    Console.WriteLine("\nJugador 1 es el ganador");
+                }
+                else if (jugador2Puntos == 2)
+                {
+                    Console.WriteLine("\nJugador 2 es el ganador");
+                }
+            }
+
+            static void JugarJugador1()
+            {
+                jugador1Eleccion = opciones[random.Next(opciones.Length)];
+                Console.WriteLine($"Jugador 1 ({jugador1Eleccion})");
+            }
+
+            static void JugarJugador2()
+            {
+                jugador2Eleccion = opciones[random.Next(opciones.Length)];
+                Console.WriteLine($"Jugador 2 ({jugador2Eleccion})");
+            }
+
+            static void DeterminarGanador()
+            {
+                Console.WriteLine("\nResultados de la ronda:");
+
+                if (jugador1Eleccion == jugador2Eleccion)
+                {
+                    Console.WriteLine("Empate con " + jugador1Eleccion);
+                }
+                else if ((jugador1Eleccion == "Piedra" && jugador2Eleccion == "Tijera") ||
+                         (jugador1Eleccion == "Papel" && jugador2Eleccion == "Piedra") ||
+                         (jugador1Eleccion == "Tijera" && jugador2Eleccion == "Papel"))
+                {
+                    Console.WriteLine("Jugador 1 gana la ronda!");
+                    jugador1Puntos++;
+                }
+                else
+                {
+                    Console.WriteLine("Jugador 2 gana la ronda!");
+                    jugador2Puntos++;
+                }
+
+                Console.WriteLine($"Jugador 1 - {jugador1Puntos} puntos, Jugador 2 {jugador2Puntos} puntos");
+            }
+        }
+    
+   
